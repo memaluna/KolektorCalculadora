@@ -1,0 +1,33 @@
+@charset "ISO-8859-1";
+body{
+	padding-top: 66px;
+	text-align: center;
+}
+
+.contenedorCalc {
+	/* alinear div a contenido */ 
+    display:inline-block;
+    margin-left:auto;
+    margin-right:auto;
+    /* alinear elementos */
+	text-align: center;
+	/* dar formato a borde */
+	padding: 20px;
+	border-width: 3px;
+  	border-style: solid;
+  	border-color: #c0c0c0;
+  	background-color: #e7ebe7;
+}
+
+.valorcito{
+	margin: 7px;
+	min-width: 150px;
+}
+
+.resul{
+	margin: 10px;
+	padding: 15px;
+	border-width: 3px;
+  	border-style: solid;
+  	border-color: #dbdbdb;
+}
