@@ -2,12 +2,23 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>Insert title here</title>
+		<title>Tabla Productos</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<link href="./css/bootstrap.css" rel="stylesheet">
 		<link href="./css/general.css" rel="stylesheet">
 		<script type="text/javascript" src="js/jquery-3.6.0.js"></script>
 		<script type="text/javascript" src="js/bootstrap.js"></script>
+		<script src="./js/handlebars.js"></script>
+		<script src="./js/bootbox.all.min.js"></script>
+		<script src="./js/axios.min.js"></script>
+		
+		<script id="tmp-registro" type="text/x-handlebars-template">
+		{{#each items}}
+			<tr>
+				<td>{{idProducto}}</td><td>{{nombre}}</td><td>{{precio}}</td><td>{{cantidad}}</td><td>{{subtotal}}</td><td><a onclick="borrarProducto(this)" href="#" class="btn btn-danger" data-id-producto="{{idProducto}}">Borrar</a></td>
+			</tr>		
+		{{/each}}
+		</script>
 	</head>
 	<body>
 		<header>
@@ -38,52 +49,172 @@
 		</header>
 		
 	<div class="container">
-		<h1>Ejemplo form</h1>
-		<form>
-			<div class="form-group row">
-			    <label>Ejemplo input</label>
-			    <div class="col-sm-10">
-			    <input type="text" name="ejemplo-input" placeholder="Ejemplo input" size="20" maxlength="15">
-			    </div>
-			</div>
-			<div class="form-group row">
-			    <label>Ejemplo número</label>
-			    <div class="col-sm-10">
-			    <input type="number" value="0" min="0" max="99"><br>
-			    </div>
-			</div>
-			<div class="form-group row">
-			    <label>Ejemplo password</label>
-			    <div class="col-sm-10">
-			   	<input type="password">
-			   	</div>
-			</div>
-			<div class="form-group row">
-			    <label>Ejemplo textArea</label>
-			    <div class="col-sm-10">
-			    <textarea rows="10" cols="20"></textarea><br>
-			    </div>
-			</div>
-			<select>
-				<option value="uno">Uno</option>
-				<option value="dos" selected="selected">Dos</option>
-				<option value="tres">Tres</option>
-			</select><br>
-			<div class="form-check form-check-inline">
-				<input type="checkbox" checked="checked" value="uno">Uno<br>
-				<input type="checkbox" checked="checked" value="dos">Dos<br>
-				<input type="checkbox" checked="checked" value="tres">Tres<br>
-			</div>
-			<br>
-			<div class="form-check form-check-inline">
-				<input type="radio" name="ejemplo-radio" checked="checked" value="uno">Uno<br>
-				<input type="radio" name="ejemplo-radio" value="dos">Dos<br>
-				<input type="radio" name="ejemplo-radio" value="tres">Tres<br>
-			</div>
-			<br>
-			<button type="submit" class="btn btn-primary">Enviar datos</button>
-		</form>
-	</div>
+		<h1>Ejemplo factura JSON</h1>
+		<br>
 		
+		<form>
+		  <div class="form-row">
+		    <div class="col-2">
+		      <input type="text" id="campoIdProducto" class="form-control" placeholder="Id Producto">
+		    </div>
+		    <div class="col-4">
+		      <input type="text" id="campoNombre" class="form-control" placeholder="Nombre">
+		    </div>
+		    <div class="col-2">
+		      <input type="number" id="campoPrecio" class="form-control" placeholder="Precio">
+		    </div>
+		    <div class="col-2">
+		      <input type="number" id="campoCantidad" class="form-control" placeholder="Cantidad">
+		    </div>
+		    <div class="col-2">
+		      <button type="button" class="btn btn-primary" onclick="agregarProducto()">Agregar</button>
+		    </div>
+		  </div>
+		</form>		
+		
+		<br>
+		<table class="table">
+			<thead class="thead-dark">
+				<tr>
+				<th>Id producto</th><th>Nombre</th><th>Precio</th><th>Cantidad</th><th>Subtotal</th><th></th>
+				</tr>
+			</thead>
+			<tbody id="tbody-productos">
+			</tbody>
+			<tfoot>
+			    <tr>
+			      <td class="table-dark" colspan="3">Total</td>
+			      <td id="tdTotal" colspan="3" class="table-secondary"></td>
+			    </tr>
+			</tfoot>
+		</table>
+		
+		
+		
+	</div>
+	
+	<script>
+		//generamos clase producto
+		class productoClase{		
+			constructor(idProducto, nombre, precio, cantidad){
+				this.idProducto = idProducto;
+				this.nombre = nombre;
+				this.precio = precio;
+				this.cantidad = cantidad;
+				this.subtotal = precio * cantidad;
+			}		
+		}
+		//generamos clase grupo de productos
+		class grupoProductosClase{
+			constructor(){
+				this.items = [];
+			}
+			
+			agregarProducto(productoNuevo){
+				this.items.push(productoNuevo);
+			}
+					
+			getProductos(){				
+				return this.items;
+			}
+			
+			//TODO retornar true si existe id
+			existeId(id){
+				console.log(this.items);
+				for (const item in this.items) {
+					  console.log(item.idProducto);
+					}
+			}
+		}
+		
+		//genero objetos producto
+		let productoC = new productoClase(1, "Tv", 200, 10);
+		let productoC2 = new productoClase(2, "TvHD", 200, 10);
+		let productoC3 = new productoClase(3, "PC", 3200, 50);
+		//genero objeto grupo productos
+		let productosC = new grupoProductosClase();
+		//agrego objetos producto a grupo de productos
+		productosC.agregarProducto(productoC);
+		productosC.agregarProducto(productoC2);
+		productosC.agregarProducto(productoC3);
+	
+		
+		var source = document.getElementById("tmp-registro").innerHTML;
+		var template = Handlebars.compile(source);
+		
+		//console.log(productosC);
+		//se le da formato para igualar a anterior productos
+		let productos = {
+				items: []
+		};
+		productos["items"] = productosC.getProductos();
+
+		
+		
+		var htmlGenerado = template(productos);
+		document.getElementById('tbody-productos').innerHTML = htmlGenerado;
+		
+		agregarTotal(productos.items);
+		
+		function borrarProducto(boton) {		
+			bootbox.confirm("Borrar registro?", function(result){
+				if(result == true){
+					var idProducto = boton.dataset.idProducto;
+					var productoRecuperado = productos.items.find(p => p.idProducto == idProducto);
+					var indexProductoParaBorrar = productos.items.indexOf(productoRecuperado);
+					productos.items.splice(indexProductoParaBorrar, 1);
+					document.getElementById('tbody-productos').innerHTML = template(productos);
+					agregarTotal(productos.items);
+				}				
+			});
+		}
+		
+		function agregarProducto() {
+			let campoIdProducto = document.getElementById('campoIdProducto');
+			let campoNombre = document.getElementById('campoNombre');
+			let campoPrecio = document.getElementById('campoPrecio');
+			let campoCantidad = document.getElementById('campoCantidad');
+					
+			
+			//productosC.existeId(1);
+			
+			
+			//validaciones
+			if(isNaN(campoPrecio.value)){
+				alert("Ingresar números en Precio")
+			}else if(isNaN(campoCantidad.value)){
+				alert("Ingresar números en Cantidad")
+			}else if(isNaN(campoIdProducto.value)){
+				alert("Ingresar números en Id Producto")
+			}else if(campoIdProducto.value == "" || campoNombre.value == "" || campoPrecio.value == "" || campoCantidad.value == ""){
+				alert("Se deben ingresar todos los datos")
+			}else if(productos.items.find(p => p.idProducto == campoIdProducto.value)){
+				alert("El id Producto ya existe")
+			}else{
+				//Se cambia a nuevo objeto de producto clase
+				let p = new productoClase(
+						parseInt(campoIdProducto.value), 
+						campoNombre.value, 
+						parseInt(campoPrecio.value), 
+						parseInt(campoCantidad.value)
+					);
+				productos.items.push(p);
+				document.getElementById('tbody-productos').innerHTML = template(productos);		
+				agregarTotal(productos.items);
+			}				
+		}
+			
+		
+		function agregarTotal(productos){
+			let tdTotal = document.getElementById("tdTotal");
+			let sumatoria = 0
+			productos.forEach(function(producto) {
+				sumatoria += producto.subtotal;
+			});
+			//console.log(sumatoria);
+			tdTotal.innerHTML = sumatoria;
+		}
+		
+	</script>	
 	</body>
 </html>
